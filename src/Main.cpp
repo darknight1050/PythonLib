@@ -67,16 +67,16 @@ typedef int(*Py_BytesMain_t)(int argc, char **argv);
 
 void doStuff() {
     auto libdl = dlopen("libdl.so", RTLD_NOW | RTLD_GLOBAL);
-	LOG_INFO("libdl %p", libdl);
-	auto android_create_namespace = (android_create_namespace_t)dlsym(libdl, "__loader_android_create_namespace");
-	LOG_INFO("android_create_namespace %p", android_create_namespace);
-	auto android_dlopen_ext = (android_dlopen_ext_t)dlsym(libdl, "__loader_android_dlopen_ext");
-	LOG_INFO("android_dlopen_ext %p", android_dlopen_ext);
+    LOG_INFO("libdl %p", libdl);
+    auto android_create_namespace = (android_create_namespace_t)dlsym(libdl, "__loader_android_create_namespace");
+    LOG_INFO("android_create_namespace %p", android_create_namespace);
+    auto android_dlopen_ext = (android_dlopen_ext_t)dlsym(libdl, "__loader_android_dlopen_ext");
+    LOG_INFO("android_dlopen_ext %p", android_dlopen_ext);
 
     std::string pythonHome = getDataHome() + "usr";
-	LOG_INFO("pythonHome %s", pythonHome.c_str());
+    LOG_INFO("pythonHome %s", pythonHome.c_str());
     std::string ytdlp = getModDataHome() + "ytdlp";
-	LOG_INFO("ytdlp %s", ytdlp.c_str());
+    LOG_INFO("ytdlp %s", ytdlp.c_str());
 
     auto ns = android_create_namespace(
       "trustme",
@@ -86,19 +86,19 @@ void doStuff() {
       ANDROID_NAMESPACE_TYPE_ISOLATED,
       "/system/:/data/:/vendor/",
       NULL);
-	LOG_INFO("ns %p", ns);
+    LOG_INFO("ns %p", ns);
     const android_dlextinfo dlextinfo = {
         .flags = ANDROID_DLEXT_USE_NAMESPACE,
         .library_namespace = ns,
         };
     auto libpython = android_dlopen_ext("libpython3.8.so", RTLD_LOCAL | RTLD_NOW, &dlextinfo);
-	LOG_INFO("libpython %p", libpython);
+    LOG_INFO("libpython %p", libpython);
     if(!libpython) {
         LOG_INFO("dlerror: %s", dlerror());
         return;
     }
-	auto Py_BytesMain = (Py_BytesMain_t)dlsym(libpython, "Py_BytesMain");
-	LOG_INFO("Py_BytesMain %p", Py_BytesMain);
+    auto Py_BytesMain = (Py_BytesMain_t)dlsym(libpython, "Py_BytesMain");
+    LOG_INFO("Py_BytesMain %p", Py_BytesMain);
 
     setenv("PYTHONHOME", pythonHome.c_str(), 1);
     setenv("SSL_CERT_FILE", (pythonHome+ "/etc/tls/cert.pem").c_str(), 1);
@@ -114,7 +114,7 @@ void doStuff() {
    
    // Load the module object
    pModule = PyImport_ImportModule("arbName");
-	if (!PyCallable_Check(pModule))
+    if (!PyCallable_Check(pModule))
    {
        PyErr_Print();
    }
