@@ -43,20 +43,17 @@ out/
 [Oo]bjs/
 ndkpath.txt
 *.zip
-*.cmake
 
-extern/
-
-build/
+extern
 
 qpm.shared.json
-mod.json
 
-/.vs/SongDownloader/v16
-*.sqlite
+Android.mk.backup
 /.vs
-/log_timestamp
+build/
+extern.cmake
+qpm_defines.cmake
+mod.json
 *.log
-/advanced-logging.ps1
-/BuildTools
 *.qmod
+tombstone*
