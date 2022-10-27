@@ -7,9 +7,9 @@ param (
 
 & ./build.ps1
 if ($useDebug.IsPresent) {
-    & adb push build/debug/libpython.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libpython.so
+    & adb push build/debug/libpythonlib.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libpythonlib.so
 } else {
-    & adb push build/libpython.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libpython.so
+    & adb push build/libpythonlib.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libpythonlib.so
 }
 
 & adb shell am force-stop com.beatgames.beatsaber
