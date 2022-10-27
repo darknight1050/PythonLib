@@ -103,7 +103,7 @@ void doStuff() {
     setenv("PYTHONHOME", pythonHome.c_str(), 1);
     setenv("SSL_CERT_FILE", (pythonHome+ "/etc/tls/cert.pem").c_str(), 1);
     const int size = 6;
-    const char* argv[size] = { "", ytdlp.c_str(), "--no-cache-dir", "-P", "/sdcard", "https://youtu.be/SnP0Nqp455I" };
+    const char* argv[size] = { "", ytdlp.c_str(), "--no-cache-dir", "-P", "/sdcard", "https://youtu.be/dQw4w9WgXcQ" };
     LOG_INFO("Py_BytesMain Result: %d", Py_BytesMain(size, (char**)argv));
     /*Py_Initialize();
     PyObject *pModule, *pDict, *pFunc, *pValue, *presult;
