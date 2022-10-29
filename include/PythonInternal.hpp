@@ -2,9 +2,6 @@
 #include <optional>
 #include "Python.hpp"
 
-#define DEFINE_DLSYM(retval, name, ...) \
-retval(*name)(__VA_ARGS__);
-
 #define LOAD_DLSYM(handle, name) \
 *reinterpret_cast<void**>(&name) = dlsym(handle, #name); \
 if(!name) { \
