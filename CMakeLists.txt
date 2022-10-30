@@ -50,7 +50,7 @@ target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/beatsabe
 # zip includes
 target_include_directories(${COMPILE_ID} PRIVATE include/zip/src)
 
-target_link_libraries(${COMPILE_ID} PRIVATE -llog -lz)
+target_link_libraries(${COMPILE_ID} PRIVATE -llog)
 # add extern stuff like libs and other includes
 include(extern.cmake)
 
