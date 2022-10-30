@@ -57,6 +57,18 @@ namespace Python {
             return false;
         }
         LOAD_DLSYM(libpython, Py_BytesMain);
+        LOAD_DLSYM(libpython, Py_Initialize);
+        LOAD_DLSYM(libpython, Py_Finalize);
+        LOAD_DLSYM(libpython, PyImport_ImportModule);
+        LOAD_DLSYM(libpython, PyCallable_Check);
+        LOAD_DLSYM(libpython, PyErr_Print);
+        LOAD_DLSYM(libpython, PyModule_GetDict);
+        LOAD_DLSYM(libpython, PyDict_GetItemString);
+        LOAD_DLSYM(libpython, Py_BuildValue);
+        LOAD_DLSYM(libpython, PyObject_CallObject);
+        LOAD_DLSYM(libpython, PyLong_AsLong);
+        LOAD_DLSYM(libpython, Py_DecRef);
+        LOAD_DLSYM(libpython, PyUnicode_AsUTF8);
         setenv("PYTHONHOME", pythonHome.c_str(), 1);     
         setenv("PYTHONPATH", scriptsPath.c_str(), 1);     
         setenv("SSL_CERT_FILE", (pythonHome + "/etc/tls/cert.pem").c_str(), 1); 

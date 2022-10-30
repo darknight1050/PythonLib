@@ -5,7 +5,11 @@
 #include "ModInfo.hpp"
 #include "Utils/FileUtils.hpp"
 #include "assets.hpp"
-#include "Python.hpp"
+#include "PythonInternal.hpp"
+
+using namespace Python;
+
+#define SO_NAME "libpythonlib.so"
 
 ModInfo modInfo;
 
@@ -20,69 +24,59 @@ extern "C" void setup(ModInfo& info) {
     info = modInfo;
 }
 
-
 void doStuff() {
-    std::string ytdlp = FileUtils::getScriptsPath() + "/ytdlp";
-    if(!fileexists(ytdlp)) {
-        writefile(ytdlp, IncludedAssets::ytdlp_zip);
-    }
-    LOG_INFO("Python::RunCommand %d", Python::RunCommand(ytdlp + " --no-cache-dir -P /sdcard https://youtu.be/SnP0Nqp455I"));
-    /*Py_Initialize();
+    if(!LoadPython())
+        return;
+
+    std::string redirectStd = FileUtils::getScriptsPath() + "/redirectStd.py";
+    if(!fileexists(redirectStd))
+        writefile(redirectStd, IncludedAssets::redirectStd_py);
     PyObject *pModule, *pDict, *pFunc, *pValue, *presult;
-
-
-   LOG_INFO("Py_Initialize");
-   // Initialize the Python Interpreter
    
-   // Load the module object
-   pModule = PyImport_ImportModule("arbName");
+    Py_Initialize();
+    pModule = PyImport_ImportModule("redirectStd");
     if (!PyCallable_Check(pModule))
-   {
-       PyErr_Print();
-   }
-
-   LOG_INFO("PyModule_GetDict %p", pModule);
-   // pDict is a borrowed reference 
-   pDict = PyModule_GetDict(pModule);
-
-
-   LOG_INFO("PyDict_GetItemString");
-   // pFunc is also a borrowed reference 
-   pFunc = PyDict_GetItemString(pDict, (char*)"someFunction");
-
-   LOG_INFO("PyCallable_Check");
-   if (PyCallable_Check(pFunc))
-   {
-       pValue=Py_BuildValue("(z)",(char*)"something");
-       PyErr_Print();
-       LOG_INFO("Let's give this a shot!");
-       presult=PyObject_CallObject(pFunc,pValue);
-       PyErr_Print();
-   } else 
-   {
-       PyErr_Print();
-   }
-   LOG_INFO("Result is %ld", PyLong_AsLong(presult));
-   Py_DECREF(pValue);
-
-   // Clean up
-   Py_DECREF(pModule);
-
-   // Finish the Python Interpreter
-   Py_Finalize();*/
+    {
+        PyErr_Print();
+    }
+    pDict = PyModule_GetDict(pModule);
+    pFunc = PyDict_GetItemString(pDict, (char*)"setHandle");
+    if (PyCallable_Check(pFunc))
+    {
+        auto handle = dlopen(SO_NAME, RTLD_LAZY);
+        pValue=Py_BuildValue("(K)", handle);
+        PyErr_Print();
+        presult=PyObject_CallObject(pFunc,pValue);
+        PyErr_Print();
+    } else 
+    {
+        PyErr_Print();
+    }
+    Py_DecRef(pValue);
+    Py_DecRef(pModule);
+    std::string ytdlp = FileUtils::getScriptsPath() + "/ytdlp";
+    if(!fileexists(ytdlp))
+        writefile(ytdlp, IncludedAssets::ytdlp_zip);
+    LOG_INFO("Python::RunCommand Result: %d", Python::RunCommand(ytdlp + " --no-cache-dir -P /sdcard https://youtu.be/SnP0Nqp455I"));
+    //Py_Finalize();
 }
 
-#include <iostream>
-#include <fstream>
+extern "C" void pythonWrite(int type, char* data) {
+    switch (type) {
+    case 0:
+        LOG_INFO("PythonLib Stdout: %s", data);
+        break;
+    case 1:
+        LOG_ERROR("PythonLib Stderr: %s", data);
+        break;
+    }
+    
+}
+
 extern "C" void load() {
     LOG_INFO("Starting PythonLib installation...");
     il2cpp_functions::Init();
     LOG_INFO("Successfully installed PythonLib!");
-    
-    //freopen("/sdcard/out.txt", "w", stdout);
-    //freopen("/sdcard/err.txt", "w", stderr);
-    std::thread t([](){
-        doStuff();
-    });
-    t.detach();
+
+    doStuff();
 }
