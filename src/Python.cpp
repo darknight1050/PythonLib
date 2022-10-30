@@ -11,6 +11,7 @@ namespace Python {
 
     bool LoadPythonDirect() {
         auto pythonPath = FileUtils::getPythonPath();
+        auto scriptsPath = FileUtils::getScriptsPath();
         auto pythonHome = pythonPath + "/usr";
         if(!direxists(pythonHome)) {
             LOG_INFO("Creating PythonPath: %s", pythonPath.c_str());
@@ -57,6 +58,7 @@ namespace Python {
         }
         LOAD_DLSYM(libpython, Py_BytesMain);
         setenv("PYTHONHOME", pythonHome.c_str(), 1);     
+        setenv("PYTHONPATH", scriptsPath.c_str(), 1);     
         setenv("SSL_CERT_FILE", (pythonHome + "/etc/tls/cert.pem").c_str(), 1); 
         return true;
     }
