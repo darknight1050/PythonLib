@@ -22,9 +22,11 @@ namespace Python {
                     return 0;
                 }, &args);
         }
+        dlerror();
         auto libdl = dlopen("libdl.so", RTLD_NOW | RTLD_GLOBAL);
-        if(!libdl) {
-            LOG_ERROR("Couldn't dlopen: libdl.so");
+        auto libdlError = dlerror();
+        if(libdlError) {
+            LOG_ERROR("Couldn't dlopen libdl.so: %s", libdlError);
             return false;
         }
         LOAD_DLSYM(libdl, __loader_android_create_namespace);
@@ -46,9 +48,11 @@ namespace Python {
                 .flags = ANDROID_DLEXT_USE_NAMESPACE,
                 .library_namespace = ns,
                 };
+        dlerror();
         auto libpython = __loader_android_dlopen_ext("libpython3.8.so", RTLD_LOCAL | RTLD_NOW, &dlextinfo);
-        if(!libpython) {
-            LOG_ERROR("Couldn't dlopen: libpython3.8.so");
+        auto libpythonError = dlerror();
+        if(libpythonError) {
+            LOG_ERROR("Couldn't dlopen libpython3.8.so: %s", libpythonError);
             return false;
         }
         LOAD_DLSYM(libpython, Py_BytesMain);

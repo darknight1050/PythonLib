@@ -3,9 +3,11 @@
 #include "Python.hpp"
 
 #define LOAD_DLSYM(handle, name) \
+dlerror(); \
 *reinterpret_cast<void**>(&name) = dlsym(handle, #name); \
-if(!name) { \
-    LOG_ERROR("Couldn't dlsym: %s", #name); \
+auto name##Error = dlerror(); \
+if(name##Error) { \
+    LOG_ERROR("Couldn't dlsym %s: %s", #name, name##Error); \
     return false; \
 }
 
