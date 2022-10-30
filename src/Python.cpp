@@ -13,8 +13,8 @@ namespace Python {
         auto pythonPath = FileUtils::getPythonPath();
         auto scriptsPath = FileUtils::getScriptsPath();
         auto pythonHome = pythonPath + "/usr";
+        LOG_INFO("PythonPath: %s", pythonPath.c_str());
         if(!direxists(pythonHome)) {
-            LOG_INFO("Creating PythonPath: %s", pythonPath.c_str());
             mkpath(pythonPath);
             int args = 2;
             std::string_view data = IncludedAssets::python_zip;

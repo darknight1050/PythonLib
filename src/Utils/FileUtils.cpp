@@ -8,12 +8,12 @@
 namespace FileUtils {
 
     const std::string& getPythonPath() {
-        static std::string pythonHome = string_format("/data/data/%s/files/python", Modloader::getApplicationId().c_str());
+        static std::string pythonHome = string_format("%spython", Modloader::getDestinationPath().c_str());
         return pythonHome;
     }
 
     const std::string& getScriptsPath() {
-        static std::string scriptsPath = string_format("%s/Scripts", getDataDir(modInfo).c_str());
+        static std::string scriptsPath = string_format("%sScripts", getDataDir(modInfo).c_str());
         if(!direxists(scriptsPath))
             mkpath(scriptsPath);
         return scriptsPath;
