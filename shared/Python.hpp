@@ -6,6 +6,8 @@ inline retval(*name)(__VA_ARGS__);
 
 namespace Python {
 
+    void AddPythonWriteEvent(std::function<void(int type, char* data)> const& event);
+
     bool LoadPython();
 
     int RunCommand(const std::string& args);

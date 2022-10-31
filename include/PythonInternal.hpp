@@ -33,5 +33,9 @@ namespace Python {
     
     DECLARE_DLSYM(android_namespace_t*, __loader_android_create_namespace, const char* name, const char* ld_library_path, const char* default_library_path, uint64_t type, const char* permitted_when_isolated_path, struct android_namespace_t* parent);
     DECLARE_DLSYM(void*, __loader_android_dlopen_ext, const char* filename, int flag, const android_dlextinfo* extinfo);
+    
+    void CallPythonWriteEvent(int type, char* data);
+
+    bool Load_Dlsym(void* libpython);
 
 }

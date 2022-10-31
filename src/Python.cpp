@@ -9,6 +9,97 @@
 
 namespace Python {
 
+    std::vector<std::function<void(int type, char* data)>> LoadedEvents;
+    std::mutex LoadedEventsMutex;
+
+    void AddPythonWriteEvent(std::function<void(int type, char* data)> const& event) {
+        std::lock_guard<std::mutex> lock(LoadedEventsMutex);
+        LoadedEvents.push_back(event);
+    }
+
+    void CallPythonWriteEvent(int type, char* data) {
+        std::lock_guard<std::mutex> lock(LoadedEventsMutex);
+        for (auto& event : LoadedEvents) {
+            event(type, data);
+        }
+    }
+        
+    bool LoadPythonDirect() {
+        auto pythonPath = FileUtils::getPythonPath();
+        auto scriptsPath = FileUtils::getScriptsPath();
+        auto pythonHome = pythonPath + "/usr";
+        LOG_INFO("PythonPath: %s", pythonPath.c_str());
+        if(!direxists(pythonHome)) {
+            mkpath(pythonPath);
+            int args = 2;
+            std::string_view data = IncludedAssets::python_zip;
+            int statusCode = zip_stream_extract(data.data(), data.length(), pythonPath.c_str(), 
+                +[](const char* name, void* arg) -> int {
+                    return 0;
+                }, &args);
+        }
+        dlerror();
+        auto libdl = dlopen("libdl.so", RTLD_NOW | RTLD_GLOBAL);
+        auto libdlError = dlerror();
+        if(libdlError) {
+            LOG_ERROR("Couldn't dlopen libdl.so: %s", libdlError);
+            return false;
+        }
+        LOAD_DLSYM(libdl, __loader_android_create_namespace);
+        LOAD_DLSYM(libdl, __loader_android_dlopen_ext);
+
+        auto ns = __loader_android_create_namespace(
+            "python",
+            ("/system/lib64/:/system/product/lib64/:" + pythonHome + "/lib").c_str(),
+            "/system/lib64/",
+            ANDROID_NAMESPACE_TYPE_SHARED |
+            ANDROID_NAMESPACE_TYPE_ISOLATED,
+            "/system/:/data/:/vendor/",
+            NULL);
+        if(!ns) {
+            LOG_ERROR("Couldn't create namespace");
+            return false;
+        }
+        const android_dlextinfo dlextinfo = {
+                .flags = ANDROID_DLEXT_USE_NAMESPACE,
+                .library_namespace = ns,
+                };
+        dlerror();
+        auto libpython = __loader_android_dlopen_ext("libpython3.8.so", RTLD_LOCAL | RTLD_NOW, &dlextinfo);
+        auto libpythonError = dlerror();
+        if(libpythonError) {
+            LOG_ERROR("Couldn't dlopen libpython3.8.so: %s", libpythonError);
+            return false;
+        }
+        Load_Dlsym(libpython);
+        setenv("PYTHONHOME", pythonHome.c_str(), 1);     
+        setenv("PYTHONPATH", scriptsPath.c_str(), 1);     
+        setenv("SSL_CERT_FILE", (pythonHome + "/etc/tls/cert.pem").c_str(), 1); 
+        return true;
+    }
+
+    bool LoadPython() {
+        static std::optional<bool> loaded = std::nullopt;
+        if(!loaded.has_value())
+            loaded = LoadPythonDirect();
+        return loaded.value();
+    }
+
+    int RunCommand(const std::string& command) {
+        LOG_INFO("Python::RunCommand: \"%s\"", command.c_str());
+        if(!LoadPython()) {
+            return -1;
+        }
+        auto args = StringUtils::Split(command, " ");
+        auto size = args.size();
+        char** argv = new char*[size+1];
+        argv[0] = const_cast<char*>(FileUtils::getScriptsPath().c_str());
+        for(int i = 0; i < size; i++) {
+            argv[i+1] = const_cast<char*>(args[i].c_str());
+        }
+        return Py_BytesMain(size+1, argv);
+    }
+
     bool Load_Dlsym(void* libpython) {
         LOAD_DLSYM(libpython, PyMarshal_WriteObjectToString);
         LOAD_DLSYM(libpython, PyThread_release_lock);
@@ -797,82 +888,6 @@ namespace Python {
         LOAD_DLSYM(libpython, PyRun_SimpleFileEx);
         LOAD_DLSYM(libpython, PyGILState_Release);
         return true;
-    }
-
-    bool LoadPythonDirect() {
-        auto pythonPath = FileUtils::getPythonPath();
-        auto scriptsPath = FileUtils::getScriptsPath();
-        auto pythonHome = pythonPath + "/usr";
-        LOG_INFO("PythonPath: %s", pythonPath.c_str());
-        if(!direxists(pythonHome)) {
-            mkpath(pythonPath);
-            int args = 2;
-            std::string_view data = IncludedAssets::python_zip;
-            int statusCode = zip_stream_extract(data.data(), data.length(), pythonPath.c_str(), 
-                +[](const char* name, void* arg) -> int {
-                    return 0;
-                }, &args);
-        }
-        dlerror();
-        auto libdl = dlopen("libdl.so", RTLD_NOW | RTLD_GLOBAL);
-        auto libdlError = dlerror();
-        if(libdlError) {
-            LOG_ERROR("Couldn't dlopen libdl.so: %s", libdlError);
-            return false;
-        }
-        LOAD_DLSYM(libdl, __loader_android_create_namespace);
-        LOAD_DLSYM(libdl, __loader_android_dlopen_ext);
-
-        auto ns = __loader_android_create_namespace(
-            "python",
-            ("/system/lib64/:/system/product/lib64/:" + pythonHome + "/lib").c_str(),
-            "/system/lib64/",
-            ANDROID_NAMESPACE_TYPE_SHARED |
-            ANDROID_NAMESPACE_TYPE_ISOLATED,
-            "/system/:/data/:/vendor/",
-            NULL);
-        if(!ns) {
-            LOG_ERROR("Couldn't create namespace");
-            return false;
-        }
-        const android_dlextinfo dlextinfo = {
-                .flags = ANDROID_DLEXT_USE_NAMESPACE,
-                .library_namespace = ns,
-                };
-        dlerror();
-        auto libpython = __loader_android_dlopen_ext("libpython3.8.so", RTLD_LOCAL | RTLD_NOW, &dlextinfo);
-        auto libpythonError = dlerror();
-        if(libpythonError) {
-            LOG_ERROR("Couldn't dlopen libpython3.8.so: %s", libpythonError);
-            return false;
-        }
-        Load_Dlsym(libpython);
-        setenv("PYTHONHOME", pythonHome.c_str(), 1);     
-        setenv("PYTHONPATH", scriptsPath.c_str(), 1);     
-        setenv("SSL_CERT_FILE", (pythonHome + "/etc/tls/cert.pem").c_str(), 1); 
-        return true;
-    }
-
-    bool LoadPython() {
-        static std::optional<bool> loaded = std::nullopt;
-        if(!loaded.has_value())
-            loaded = LoadPythonDirect();
-        return loaded.value();
-    }
-
-    int RunCommand(const std::string& command) {
-        LOG_INFO("Python::RunCommand: \"%s\"", command.c_str());
-        if(!LoadPython()) {
-            return -1;
-        }
-        auto args = StringUtils::Split(command, " ");
-        auto size = args.size();
-        char** argv = new char*[size+1];
-        argv[0] = const_cast<char*>(FileUtils::getScriptsPath().c_str());
-        for(int i = 0; i < size; i++) {
-            argv[i+1] = const_cast<char*>(args[i].c_str());
-        }
-        return Py_BytesMain(size+1, argv);
     }
 
 }

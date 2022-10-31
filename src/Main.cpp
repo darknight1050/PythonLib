@@ -62,6 +62,7 @@ void doStuff() {
 }
 
 extern "C" void pythonWrite(int type, char* data) {
+    CallPythonWriteEvent(type, data);
     switch (type) {
     case 0:
         LOG_INFO("PythonLib Stdout: %s", data);
