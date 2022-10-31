@@ -1,29 +1,18 @@
 #include "PythonInternal.hpp"
 #include "Python.hpp"
 
+
 #include "zip.h"
 #include "assets.hpp"
 #include "Utils/StringUtils.hpp"
 #include "Utils/FileUtils.hpp"
 #include "CustomLogger.hpp"
 
+
 namespace Python {
-
-    std::vector<std::function<void(int type, char* data)>> LoadedEvents;
-    std::mutex LoadedEventsMutex;
-
-    void AddPythonWriteEvent(std::function<void(int type, char* data)> const& event) {
-        std::lock_guard<std::mutex> lock(LoadedEventsMutex);
-        LoadedEvents.push_back(event);
-    }
-
-    void CallPythonWriteEvent(int type, char* data) {
-        std::lock_guard<std::mutex> lock(LoadedEventsMutex);
-        for (auto& event : LoadedEvents) {
-            event(type, data);
-        }
-    }
         
+    UnorderedEventCallback<int, char*> PythonWriteEvent;
+    
     bool LoadPythonDirect() {
         auto pythonPath = FileUtils::getPythonPath();
         auto scriptsPath = FileUtils::getScriptsPath();

@@ -58,7 +58,6 @@ void doStuff() {
 }
 
 extern "C" void pythonWrite(int type, char* data) {
-    CallPythonWriteEvent(type, data);
     switch (type) {
     case 0:
         LOG_INFO("Stdout: %s", data);
@@ -67,7 +66,7 @@ extern "C" void pythonWrite(int type, char* data) {
         LOG_ERROR("Stderr: %s", data);
         break;
     }
-    
+    PythonWriteEvent.invoke(type, data);
 }
 
 extern "C" void load() {
