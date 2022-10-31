@@ -61,10 +61,10 @@ extern "C" void pythonWrite(int type, char* data) {
     CallPythonWriteEvent(type, data);
     switch (type) {
     case 0:
-        LOG_INFO("PythonLib Stdout: %s", data);
+        LOG_INFO("Stdout: %s", data);
         break;
     case 1:
-        LOG_ERROR("PythonLib Stderr: %s", data);
+        LOG_ERROR("Stderr: %s", data);
         break;
     }
     
