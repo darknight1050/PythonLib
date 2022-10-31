@@ -45,6 +45,5 @@ namespace IncludedAssets {
 
 	DECLARE_FILE(python_zip)
 	DECLARE_FILE(redirectStd_py)
-	DECLARE_FILE(ytdlp_zip)
 
 }

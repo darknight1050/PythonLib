@@ -54,10 +54,6 @@ void doStuff() {
     }
     Py_DecRef(pValue);
     Py_DecRef(pModule);
-    std::string ytdlp = FileUtils::getScriptsPath() + "/ytdlp";
-    if(!fileexists(ytdlp))
-        writefile(ytdlp, IncludedAssets::ytdlp_zip);
-    LOG_INFO("Python::RunCommand Result: %d", Python::RunCommand(ytdlp + " --no-cache-dir -P /sdcard https://youtu.be/SnP0Nqp455I"));
     //Py_Finalize();
 }
 
