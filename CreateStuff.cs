@@ -16,22 +16,6 @@ namespace Csharp
 
         static async Task Main(string[] args)
         {
-            //string cert = ApkSigner.GenerateNewCertificatePem();
-
-            // await ApkSigner.SignApk(@"C:\Development\BeatSaber\Test\old.apk", cert, "dark", CancellationToken.None);
-            /*string folder = @"C:\Development\BeatSaber\QuestMods\python\usr\lib";
-            foreach (string path in Directory.GetFiles(folder)) {
-                FileInfo pathInfo = new FileInfo(path);
-                if (pathInfo.Length > 0 && pathInfo.Length < 128)
-                {
-                    string targetPath = Path.Combine(folder, File.ReadAllText(path));
-                    if(new FileInfo(targetPath).Exists)
-                    {
-                        File.Delete(path);
-                        pathInfo.CreateAsSymbolicLink(targetPath);
-                    }
-                }
-            }*/
             string[] allFiles = Directory.GetFiles(@"C:\Development\BeatSaber\QuestMods\python\termux-packages\output\data\data\com.termux\files\usr\include\python3.10", "*.h").Concat(Directory.GetFiles(@"C:\Development\BeatSaber\QuestMods\python\termux-packages\output\data\data\com.termux\files\usr\include\python3.10\cpython", "*.h")).ToArray();
             string exports = @"C:\Users\Florian\ghidra_scripts\exports.txt";
             string declare = @"C:\Users\Florian\Desktop\declare.txt";
