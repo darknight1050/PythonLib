@@ -51,7 +51,9 @@ namespace Python {
             LOG_ERROR("Couldn't dlopen libpython3.8.so: %s", libpythonError);
             return false;
         }
-        Load_Dlsym(libpython);
+        if(!Load_Dlsym(libpython)) {
+            return false;
+        }
         setenv("PYTHONHOME", pythonHome.c_str(), 1);     
         setenv("PYTHONPATH", scriptsPath.c_str(), 1);     
         setenv("SSL_CERT_FILE", (pythonHome + "/etc/tls/cert.pem").c_str(), 1); 
