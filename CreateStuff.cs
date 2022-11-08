@@ -25,6 +25,13 @@ namespace Csharp
             var loads = new List<string>();
             foreach (string search in File.ReadAllLines(exports).Distinct())
             {
+                if (search.EndsWith("_Type") && !search.Equals("PyObject_Type"))
+                {
+
+                    declares.Add("DECLARE_DLSYM_TYPE(" + search + ");");
+                    loads.Add("LOAD_DLSYM_TYPE(libpython, " + search + ");");
+                    continue;
+                }
                 string currentBuffer = null;
                 foreach (string file in allFiles)
                 {
@@ -62,7 +69,7 @@ namespace Csharp
                             return true;
                         return x.Value.Substring(0, index).Contains("*");
                     }
-                    ).Select(x => "struct " + x.Value.Substring(0, x.Value.IndexOf("*")).Trim() + " { };").ToList();
+                    ).Select(x => "struct " + x.Value.Substring(0, x.Value.IndexOf("*")).Trim() + " { };").Where(x => !x.Contains("/")).ToList();
                     types.AddRange(currentTypes.Except(types));
                     Console.WriteLine(currentBuffer);
                     declares.Add(currentBuffer);

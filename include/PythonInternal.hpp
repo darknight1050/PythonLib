@@ -2,6 +2,14 @@
 #include <optional>
 #include "Python.hpp"
 
+
+
+#define DECLARE_DLSYM_INLINE(retval, name, ...) \
+inline retval(*name)(__VA_ARGS__);
+
+#define DEFINE_DLSYM(retval, name, ...) \
+retval(*name)(__VA_ARGS__) = NULL;
+
 #define LOAD_DLSYM(handle, name) \
 dlerror(); \
 *reinterpret_cast<void**>(&name) = dlsym(handle, #name); \
@@ -11,12 +19,17 @@ if(name##Error) { \
     return false; \
 }
 
-#define DECLARE_DLSYM_INLINE(retval, name, ...) \
-inline retval(*name)(__VA_ARGS__);
+#define DEFINE_DLSYM_TYPE(name) \
+PyTypeObject* name;
 
-#define DEFINE_DLSYM(retval, name, ...) \
-retval(*name)(__VA_ARGS__) = NULL;
-
+#define LOAD_DLSYM_TYPE(handle, name) \
+dlerror(); \
+name = reinterpret_cast<PyTypeObject*>(dlsym(handle, #name)); \
+auto name##Error = dlerror(); \
+if(name##Error) { \
+    LOG_ERROR("Couldn't dlsym %s: %s", #name, name##Error); \
+    return false; \
+}
 
 namespace Python {
     

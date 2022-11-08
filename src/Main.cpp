@@ -44,9 +44,9 @@ void doStuff() {
     if (PyCallable_Check(pFunc))
     {
         auto handle = dlopen(SO_NAME, RTLD_LAZY);
-        pValue=Py_BuildValue("(K)", handle);
+        pValue = Py_BuildValue("(K)", handle);
         PyErr_Print();
-        presult=PyObject_CallObject(pFunc,pValue);
+        presult = PyObject_CallObject(pFunc, pValue);
         PyErr_Print();
     } else 
     {
