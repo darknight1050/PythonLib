@@ -67,7 +67,22 @@ namespace Python {
         return loaded.value();
     }
 
+    void AddNativeModule(PyModuleDef& def) {
+        PyObject* module = PyModule_Create2(&def, 3);
+        PyObject* sys_modules = PyImport_GetModuleDict();
+        PyDict_SetItemString(sys_modules, def.m_name, module);
+        Py_DecRef(module);
+    }
+
     bool Load_Dlsym(void* libpython) {
+        dlerror();
+        Py_None = reinterpret_cast<PyObject*>(dlsym(libpython, "_Py_NoneStruct"));
+        auto Py_NoneError = dlerror(); 
+        if(Py_NoneError) {
+            LOG_ERROR("Couldn't dlsym %s: %s", "_Py_NoneStruct", Py_NoneError); 
+            return false; 
+        }
+
         LOAD_DLSYM(libpython, PyMarshal_WriteObjectToString);
         LOAD_DLSYM(libpython, PyThread_release_lock);
         LOAD_DLSYM(libpython, PyObject_Realloc);
@@ -948,6 +963,8 @@ namespace Python {
         LOAD_DLSYM(libpython, PyGILState_Release);
         return true;
     }
+
+    PyObject* Py_None;
 
     DEFINE_DLSYM(PyObject *, PyMarshal_WriteObjectToString, PyObject *, int);
     DEFINE_DLSYM(void, PyThread_release_lock, PyThread_type_lock);

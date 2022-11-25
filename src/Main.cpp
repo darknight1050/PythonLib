@@ -24,55 +24,65 @@ extern "C" void setup(ModInfo& info) {
     info = modInfo;
 }
 
+static PyObject *
+nativelib_stdWrite(PyObject *self, PyObject *args)
+{
+    int type;
+    char* data;
+    if (PyArg_ParseTuple(args, "is", &type, &data)) {
+        switch (type) {
+        case 0:
+            LOG_INFO("Stdout: %s", data);
+            break;
+        case 1:
+            LOG_ERROR("Stderr: %s", data);
+            break;
+        }
+        PythonWriteEvent.invoke(type, data);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyMethodDef NativeLibMethods[] = {
+    {"stdWrite", nativelib_stdWrite, METH_VARARGS, ""},
+    {NULL, NULL, 0, NULL} 
+};
+
+static struct PyModuleDef NativeLibModule = {
+    PyModuleDef_HEAD_INIT,
+    "nativelib", 
+    nullptr,
+    -1, 
+    NativeLibMethods
+};
+
 void doStuff() {
     if(!LoadPython())
         return;
 
     std::string redirectStd = FileUtils::getScriptsPath() + "/redirectStd.py";
-    if(!fileexists(redirectStd))
-        writefile(redirectStd, IncludedAssets::redirectStd_py);
-    PyObject *pModule, *pDict, *pFunc, *pValue, *presult;
-   
+    writefile(redirectStd, IncludedAssets::redirectStd_py);
+    
     Py_Initialize();
-    pModule = PyImport_ImportModule("redirectStd");
-    if (!PyCallable_Check(pModule))
+    
+    AddModule(NativeLibModule);
+
+    PyObject* pModule = PyImport_ImportModule("redirectStd");
+    if (!pModule)
     {
         PyErr_Print();
     }
-    pDict = PyModule_GetDict(pModule);
-    pFunc = PyDict_GetItemString(pDict, (char*)"setHandle");
-    if (PyCallable_Check(pFunc))
-    {
-        auto handle = dlopen(SO_NAME, RTLD_LAZY);
-        pValue = Py_BuildValue("(K)", handle);
-        PyErr_Print();
-        presult = PyObject_CallObject(pFunc, pValue);
-        PyErr_Print();
-    } else 
-    {
-        PyErr_Print();
-    }
-    Py_DecRef(pValue);
     Py_DecRef(pModule);
     //Py_Finalize();
-}
-
-extern "C" void pythonWrite(int type, char* data) {
-    switch (type) {
-    case 0:
-        LOG_INFO("Stdout: %s", data);
-        break;
-    case 1:
-        LOG_ERROR("Stderr: %s", data);
-        break;
-    }
-    PythonWriteEvent.invoke(type, data);
 }
 
 extern "C" void load() {
     LOG_INFO("Starting PythonLib installation...");
     il2cpp_functions::Init();
     LOG_INFO("Successfully installed PythonLib!");
+
+    //freopen("/sdcard/out.txt", "w", stdout);  
+    //freopen("/sdcard/err.txt", "w", stderr);
 
     doStuff();
 }

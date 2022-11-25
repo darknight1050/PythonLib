@@ -72,8 +72,34 @@ extern PyTypeObject* name;
                  Py_TPFLAGS_HAVE_STACKLESS_EXTENSION | \
                 0)
 
-#define _PyObject_HEAD_EXTRA
+#define METH_VARARGS  0x0001
+#define METH_KEYWORDS 0x0002
+#define METH_NOARGS   0x0004
+#define METH_O        0x0008
 
+#define METH_CLASS    0x0010
+#define METH_STATIC   0x0020
+
+#define METH_COEXIST   0x0040
+
+#define PyMODINIT_FUNC extern "C" PyObject*
+
+#define PyObject_HEAD          PyObject ob_base;
+
+#define _PyObject_HEAD_EXTRA
+#define _PyObject_EXTRA_INIT
+
+#define PyObject_HEAD_INIT(type)        \
+    { _PyObject_EXTRA_INIT              \
+    1, type },
+
+#define PyModuleDef_HEAD_INIT { \
+    PyObject_HEAD_INIT(NULL)    \
+    NULL, /* m_init */          \
+    0,    /* m_index */         \
+    NULL, /* m_copy */          \
+  }
+  
 #define PyObject_VAR_HEAD      PyVarObject ob_base;
 
 #define _PyObject_CAST(op) ((PyObject*)(op))
@@ -92,6 +118,26 @@ extern PyTypeObject* name;
 
 #define PyType_FastSubclass(type, flag) PyType_HasFeature(type, flag)
 
+#define Py_NewRef(obj) _Py_NewRef(_PyObject_CAST(obj))
+#define Py_RETURN_NONE return Py_NewRef(Py_None)
+
+
+#define PyLong_Check(op) \
+        PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_LONG_SUBCLASS)
+#define PyLong_CheckExact(op) Py_IS_TYPE(op, PyLong_Type)
+
+#define PyFloat_Check(op) PyObject_TypeCheck(op, PyFloat_Type)
+#define PyFloat_CheckExact(op) Py_IS_TYPE(op, PyFloat_Type)
+
+#define PyBool_Check(x) Py_IS_TYPE(x, PyBool_Type)
+
+#define PyBytes_Check(op) \
+                 PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_BYTES_SUBCLASS)
+#define PyBytes_CheckExact(op) Py_IS_TYPE(op, PyBytes_Type)
+
+#define PyUnicode_Check(op) \
+                 PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_UNICODE_SUBCLASS)
+#define PyUnicode_CheckExact(op) Py_IS_TYPE(op, PyUnicode_Type)
 
 namespace Python {
 
@@ -373,7 +419,34 @@ namespace Python {
     typedef PyObject * (*Py_OpenCodeHookFunction)(PyObject *, void *);
     #define PY_TIMEOUT_T long long
 
-    struct PyMethodDef { };
+    struct PyMethodDef {
+        const char  *ml_name;   /* The name of the built-in function/method */
+        PyCFunction ml_meth;    /* The C function that implements it */
+        int         ml_flags;   /* Combination of METH_xxx flags, which mostly
+                                describe the args expected by the C func */
+        const char  *ml_doc;    /* The __doc__ attribute, or NULL */
+    };
+    typedef struct PyMethodDef PyMethodDef;
+    typedef struct PyModuleDef_Base {
+        PyObject_HEAD
+        PyObject* (*m_init)(void);
+        Py_ssize_t m_index;
+        PyObject* m_copy;
+    } PyModuleDef_Base;
+    typedef struct PyModuleDef{
+        PyModuleDef_Base m_base;
+        const char* m_name;
+        const char* m_doc;
+        Py_ssize_t m_size;
+        PyMethodDef *m_methods;
+        struct PyModuleDef_Slot* m_slots;
+        traverseproc m_traverse;
+        inquiry m_clear;
+        freefunc m_free;
+    } PyModuleDef;
+
+    extern PyObject* Py_None;
+
     struct PyPreConfig { };
     struct PyConfig { };
     struct PyWideStringList { };
@@ -381,7 +454,6 @@ namespace Python {
     struct PyMemAllocatorEx { };
     struct PyInterpreterState { };
     struct PyThreadState { };
-    struct PyModuleDef { };
     struct PyHash_FuncDef { };
     struct PyStructSequence_Desc { };
     struct PyCodeObject { };
@@ -1272,7 +1344,6 @@ namespace Python {
     DECLARE_DLSYM(int, PyRun_SimpleFileEx, FILE *f, const char *p, int c);
     DECLARE_DLSYM(void, PyGILState_Release, PyGILState_STATE);
 
-
     static inline int _Py_IS_TYPE(const PyObject *ob, const PyTypeObject *type) {
         return ob->ob_type == type;
     }
@@ -1284,5 +1355,12 @@ namespace Python {
     static inline int PyType_HasFeature(PyTypeObject *type, unsigned long feature) {
         return ((type->tp_flags & feature) != 0);
     }
+
+    static inline PyObject* _Py_NewRef(PyObject *obj) {
+        Py_IncRef(obj);
+        return obj;
+    }
+
+    void AddNativeModule(PyModuleDef& def);
 
 }
