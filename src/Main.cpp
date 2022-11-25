@@ -65,7 +65,7 @@ void doStuff() {
     
     Py_Initialize();
     
-    AddModule(NativeLibModule);
+    AddNativeModule(NativeLibModule);
 
     PyObject* pModule = PyImport_ImportModule("redirectStd");
     if (!pModule)
