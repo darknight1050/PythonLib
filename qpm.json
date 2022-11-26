@@ -24,6 +24,16 @@
       "id": "modloader",
       "versionRange": "^1.2.3",
       "additionalData": {}
+    },
+    {
+      "id": "questui",
+      "versionRange": "^0.17.6",
+      "additionalData": {}
+    },
+    {
+      "id": "custom-types",
+      "versionRange": "^0.15.22",
+      "additionalData": {}
     }
   ],
   "additionalData": {}

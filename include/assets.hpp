@@ -43,6 +43,7 @@ struct IncludedAsset {
 
 namespace IncludedAssets {
 
+	DECLARE_FILE(il2cpp_py)
 	DECLARE_FILE(python_zip)
 	DECLARE_FILE(redirectStd_py)
 
