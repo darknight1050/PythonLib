@@ -121,6 +121,8 @@ extern PyTypeObject* name;
 #define Py_NewRef(obj) _Py_NewRef(_PyObject_CAST(obj))
 #define Py_RETURN_NONE return Py_NewRef(Py_None)
 
+#define Py_INCREF(op) Py_IncRef(_PyObject_CAST(op))
+#define Py_DECREF(op) Py_DecRef(_PyObject_CAST(op))
 
 #define PyLong_Check(op) \
         PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_LONG_SUBCLASS)
@@ -445,6 +447,8 @@ namespace Python {
         freefunc m_free;
     } PyModuleDef;
 
+    typedef wchar_t Py_UNICODE;
+    
     extern PyObject* Py_None;
 
     struct PyPreConfig { };
@@ -462,7 +466,6 @@ namespace Python {
     struct Py_UCS4 { };
     struct PyMemberDef { };
     struct PyTryBlock { };
-    struct Py_UNICODE { };
     struct PyType_Spec { };
     struct PyGetSetDef { };
     DECLARE_DLSYM(PyObject *, PyMarshal_WriteObjectToString, PyObject *, int);

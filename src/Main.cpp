@@ -44,7 +44,7 @@ nativelib_stdWrite(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef NativeLibMethods[] = {
-    {"stdWrite", nativelib_stdWrite, METH_VARARGS, ""},
+    {"std_write", nativelib_std_write, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL} 
 };
 
@@ -68,11 +68,11 @@ void doStuff() {
     AddNativeModule(NativeLibModule);
 
     PyObject* pModule = PyImport_ImportModule("redirectStd");
-    if (!pModule)
+    if (PyErr_Occurred())
     {
         PyErr_Print();
     }
-    Py_DecRef(pModule);
+    Py_DECREF(pModule);
     //Py_Finalize();
 }
 
