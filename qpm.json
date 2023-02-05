@@ -7,7 +7,11 @@
     "version": "0.3.0",
     "url": "https://github.com/darknight1050/PythonLib",
     "additionalData": {
-      "overrideSoName": "libpythonlib.so"
+      "soLink": "https://github.com/darknight1050/PythonLib/releases/download/v0.3.0/libpythonlib.so",
+      "debugSoLink": "https://github.com/darknight1050/PythonLib/releases/download/v0.3.0/debug_libpythonlib.so",
+      "overrideSoName": "libpythonlib.so",
+      "modLink": "https://github.com/darknight1050/PythonLib/releases/download/v0.3.0/PythonLib.qmod",
+      "branchName": "version-v0.3.0"
     }
   },
   "dependencies": [
