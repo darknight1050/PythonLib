@@ -25,7 +25,7 @@ extern "C" void setup(ModInfo& info) {
 }
 
 static PyObject *
-nativelib_stdWrite(PyObject *self, PyObject *args)
+nativelib_std_write(PyObject *self, PyObject *args)
 {
     int type;
     char* data;
