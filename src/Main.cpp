@@ -18,12 +18,6 @@ Logger& getLogger() {
     return *logger; 
 }
 
-extern "C" void setup(ModInfo& info) {
-    modInfo.id = "PythonLib";
-    modInfo.version = VERSION;
-    info = modInfo;
-}
-
 static PyObject *
 nativelib_std_write(PyObject *self, PyObject *args)
 {
@@ -56,9 +50,9 @@ static struct PyModuleDef NativeLibModule = {
     NativeLibMethods
 };
 
-void doStuff() {
+bool doStuff() {
     if(!LoadPython())
-        return;
+        return false;
 
     std::string redirectStd = FileUtils::getScriptsPath() + "/redirectStd.py";
     writefile(redirectStd, IncludedAssets::redirectStd_py);
@@ -74,15 +68,24 @@ void doStuff() {
     }
     Py_DECREF(pModule);
     //Py_Finalize();
+    return true;
+}
+
+extern "C" void setup(ModInfo& info) {
+    modInfo.id = "PythonLib";
+    modInfo.version = VERSION;
+    info = modInfo;
+
+    LOG_INFO("Setting up PythonLib...");
+    if(doStuff()){
+        LOG_INFO("Successfully setup PythonLib!");
+    }else {
+        LOG_INFO("Error while setting up PythonLib!");
+    }
+    //freopen("/sdcard/out.txt", "w", stdout);
+    //freopen("/sdcard/err.txt", "w", stderr);
 }
 
 extern "C" void load() {
-    LOG_INFO("Starting PythonLib installation...");
     il2cpp_functions::Init();
-    LOG_INFO("Successfully installed PythonLib!");
-
-    //freopen("/sdcard/out.txt", "w", stdout);  
-    //freopen("/sdcard/err.txt", "w", stderr);
-
-    doStuff();
 }
