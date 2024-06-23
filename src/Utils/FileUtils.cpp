@@ -1,20 +1,22 @@
 #include "Utils/FileUtils.hpp"
 
-#include "modloader/shared/modloader.hpp"
+#include "scotland2/shared/modloader.h"
 #include "beatsaber-hook/shared/config/config-utils.hpp"
 #include "CustomLogger.hpp"
 #include "ModInfo.hpp"
 #include "zip.h"
 
+#include <filesystem>
+
 namespace FileUtils {
 
     const std::string& getPythonPath() {
-        static std::string pythonHome = string_format("%spython", Modloader::getDestinationPath().c_str());
+        static std::string pythonHome = std::filesystem::path{modloader::get_files_dir()} / "python";
         return pythonHome;
     }
 
     const std::string& getScriptsPath() {
-        static std::string scriptsPath = string_format("%sScripts", getDataDir(modInfo).c_str());
+        static std::string scriptsPath = std::filesystem::path{getDataDir(modInfo)} / "Scripts";
         if(!direxists(scriptsPath))
             mkpath(scriptsPath);
         return scriptsPath;

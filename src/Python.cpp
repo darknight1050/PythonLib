@@ -13,7 +13,7 @@ namespace Python {
         auto pythonPath = FileUtils::getPythonPath();
         auto scriptsPath = FileUtils::getScriptsPath();
         auto pythonHome = pythonPath + "/usr";
-        LOG_INFO("PythonPath: %s", pythonPath.c_str());
+        LOG_INFO("PythonPath: {}", pythonPath.c_str());
         if(!direxists(pythonHome)) {
             mkpath(pythonPath);
             FileUtils::ExtractZip(IncludedAssets::python_zip, pythonPath);
@@ -22,7 +22,7 @@ namespace Python {
         auto libdl = dlopen("libdl.so", RTLD_NOW | RTLD_GLOBAL);
         auto libdlError = dlerror();
         if(libdlError) {
-            LOG_ERROR("Couldn't dlopen libdl.so: %s", libdlError);
+            LOG_ERROR("Couldn't dlopen libdl.so: {}", libdlError);
             return false;
         }
         LOAD_DLSYM(libdl, __loader_android_create_namespace);
@@ -48,7 +48,7 @@ namespace Python {
         auto libpython = __loader_android_dlopen_ext("libpython3.8.so", RTLD_LOCAL | RTLD_NOW, &dlextinfo);
         auto libpythonError = dlerror();
         if(libpythonError) {
-            LOG_ERROR("Couldn't dlopen libpython3.8.so: %s", libpythonError);
+            LOG_ERROR("Couldn't dlopen libpython3.8.so: {}", libpythonError);
             return false;
         }
         if(!Load_Dlsym(libpython)) {
@@ -79,7 +79,7 @@ namespace Python {
         Py_None = reinterpret_cast<PyObject*>(dlsym(libpython, "_Py_NoneStruct"));
         auto Py_NoneError = dlerror(); 
         if(Py_NoneError) {
-            LOG_ERROR("Couldn't dlsym %s: %s", "_Py_NoneStruct", Py_NoneError); 
+            LOG_ERROR("Couldn't dlsym {}: {}", "_Py_NoneStruct", Py_NoneError); 
             return false; 
         }
 

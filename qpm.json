@@ -1,4 +1,5 @@
 {
+  "version": "0.1.0",
   "sharedDir": "shared",
   "dependenciesDir": "extern",
   "info": {
@@ -7,13 +8,20 @@
     "version": "0.0.1",
     "url": "https://github.com/darknight1050/PythonLib",
     "additionalData": {
-      "overrideSoName": "libpythonlib.so"
+      "overrideSoName": "libpythonlib.so",
+      "cmake": true
     }
+  },
+  "workspace": {
+    "scripts": {},
+    "qmodIncludeDirs": [],
+    "qmodIncludeFiles": [],
+    "qmodOutput": null
   },
   "dependencies": [
     {
       "id": "beatsaber-hook",
-      "versionRange": "^3.14.0",
+      "versionRange": "^5.0.0",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
@@ -21,10 +29,16 @@
       }
     },
     {
-      "id": "modloader",
-      "versionRange": "^1.2.3",
+      "id": "scotland2",
+      "versionRange": "^0.1.4",
+      "additionalData": {
+        "includeQmod": false
+      }
+    },
+    {
+      "id": "paper",
+      "versionRange": "^3.6.3",
       "additionalData": {}
     }
-  ],
-  "additionalData": {}
+  ]
 }

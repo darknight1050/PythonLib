@@ -1,4 +1,4 @@
 #pragma once
-#include "modloader/shared/modloader.hpp"
+#include "scotland2/shared/modloader.h"
 
-extern ModInfo modInfo;
+extern modloader::ModInfo modInfo;

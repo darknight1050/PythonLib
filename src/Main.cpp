@@ -11,12 +11,7 @@ using namespace Python;
 
 #define SO_NAME "libpythonlib.so"
 
-ModInfo modInfo;
-
-Logger& getLogger() {
-    static auto logger = new Logger(modInfo, LoggerOptions(false, true)); 
-    return *logger; 
-}
+modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 
 static PyObject *
 nativelib_std_write(PyObject *self, PyObject *args)
@@ -26,10 +21,10 @@ nativelib_std_write(PyObject *self, PyObject *args)
     if (PyArg_ParseTuple(args, "is", &type, &data)) {
         switch (type) {
         case 0:
-            LOG_INFO("Stdout: %s", data);
+            LOG_INFO("Stdout: {}", data);
             break;
         case 1:
-            LOG_ERROR("Stderr: %s", data);
+            LOG_ERROR("Stderr: {}", data);
             break;
         }
         PythonWriteEvent.invoke(type, data);
@@ -71,10 +66,8 @@ bool doStuff() {
     return true;
 }
 
-extern "C" void setup(ModInfo& info) {
-    modInfo.id = "PythonLib";
-    modInfo.version = VERSION;
-    info = modInfo;
+extern "C" void setup(CModInfo* info) {
+    *info = modInfo.to_c();
 
     LOG_INFO("Setting up PythonLib...");
     if(doStuff()){

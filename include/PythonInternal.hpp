@@ -15,7 +15,7 @@ dlerror(); \
 *reinterpret_cast<void**>(&name) = dlsym(handle, #name); \
 auto name##Error = dlerror(); \
 if(name##Error) { \
-    LOG_ERROR("Couldn't dlsym %s: %s", #name, name##Error); \
+    LOG_ERROR("Couldn't dlsym {}: {}", #name, name##Error); \
     return false; \
 }
 
@@ -27,7 +27,7 @@ dlerror(); \
 name = reinterpret_cast<PyTypeObject*>(dlsym(handle, #name)); \
 auto name##Error = dlerror(); \
 if(name##Error) { \
-    LOG_ERROR("Couldn't dlsym %s: %s", #name, name##Error); \
+    LOG_ERROR("Couldn't dlsym {}: {}", #name, name##Error); \
     return false; \
 }
 

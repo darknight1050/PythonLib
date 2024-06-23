@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.bsml": "xml",
+        "stdexcept": "cpp",
+        "string": "cpp"
+    }
+}
